@@ -1,0 +1,234 @@
+##################################################################################################
+# Details service
+##################################################################################################
+apiVersion: v1
+kind: Service
+metadata:
+  name: details
+spec:
+  ports:
+  - port: 9080
+    name: http
+  selector:
+    bookinfo-app: details
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: details-v1
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        bookinfo-app: details
+        bookinfo-version: v1
+    spec:
+      containers:
+      - name: details
+        image: index.alauda.cn/alaudak8s/istio-bookinfo-details:v1-1.9.0
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 9080
+        resources:
+          limits:
+            cpu: 100m
+            memory: 500Mi
+      imagePullSecrets:
+        - name: alaudak8s
+---
+##################################################################################################
+# Ratings service
+##################################################################################################
+apiVersion: v1
+kind: Service
+metadata:
+  name: ratings
+spec:
+  ports:
+  - port: 9080
+    name: http
+  selector:
+    bookinfo-app: ratings
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: ratings-v1
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        bookinfo-app: ratings
+        bookinfo-version: v1
+    spec:
+      containers:
+      - name: ratings
+        image: index.alauda.cn/alaudak8s/istio-bookinfo-ratings:v1-1.9.0
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 9080
+        resources:
+          limits:
+            cpu: 100m
+            memory: 500Mi
+      imagePullSecrets:
+        - name: alaudak8s
+---
+##################################################################################################
+# Reviews service
+##################################################################################################
+apiVersion: v1
+kind: Service
+metadata:
+  name: reviews
+spec:
+  ports:
+  - port: 9080
+    name: http
+  selector:
+    bookinfo-app: reviews
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: reviews-v1
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        bookinfo-app: reviews
+        bookinfo-version: v1
+    spec:
+      containers:
+      - name: reviews
+        image: index.alauda.cn/alaudak8s/istio-bookinfo-reviews:v1-1.9.0
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 9080
+        resources:
+          limits:
+            cpu: 100m
+            memory: 500Mi
+      imagePullSecrets:
+        - name: alaudak8s
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: reviews-v2
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        bookinfo-app: reviews
+        bookinfo-version: v2
+    spec:
+      containers:
+      - name: reviews
+        image: index.alauda.cn/alaudak8s/istio-bookinfo-reviews:v2-1.9.0
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 9080
+        resources:
+          limits:
+            cpu: 100m
+            memory: 500Mi
+      imagePullSecrets:
+        - name: alaudak8s
+ 
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: reviews-v3
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        bookinfo-app: reviews
+        bookinfo-version: v3
+    spec:
+      containers:
+      - name: reviews
+        image: index.alauda.cn/alaudak8s/istio-bookinfo-reviews:v3-1.9.0
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 9080
+        resources:
+          limits:
+            cpu: 100m
+            memory: 500Mi
+      imagePullSecrets:
+        - name: alaudak8s
+---
+##################################################################################################
+# Productpage services
+##################################################################################################
+apiVersion: v1
+kind: Service
+metadata:
+  name: productpage
+spec:
+  ports:
+  - port: 9080
+    name: http
+  selector:
+    bookinfo-app: productpage
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: productpage-v1
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        bookinfo-app: productpage
+        bookinfo-version: v1
+    spec:
+      containers:
+      - name: productpage
+        image: index.alauda.cn/alaudak8s/istio-bookinfo-productpage:v1-1.9.0
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 9080
+      imagePullSecrets:
+        - name: alaudak8s
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: sleep
+spec:
+  replicas: 1
+  template:
+    metadata:
+      annotations:
+        sidecar.istio.io/inject: "false"
+      labels:
+        bookinfo-app: curl
+    spec:
+      containers:
+      - name: sleep
+        image: index.alauda.cn/alaudak8s/asm-test-image:latest
+        command:
+        - bash
+        args:
+        - -c
+        - '(while true;do curl -H "Host: productpage.io" $GATEWAY_HOST/productpage && sleep 0.3;done)'
+        imagePullPolicy: IfNotPresent
+        env:
+        - name: GATEWAY_HOST
+          value: 129.28.157.228:30666  # 此处修改为http://$nodeIP:30666
+        resources:
+          limits:
+            cpu: 100m
+            memory: 500Mi
+      imagePullSecrets:
+        - name: alaudak8s
